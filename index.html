@@ -6,7 +6,7 @@
 <title>Text ⇄ Binary Converter</title>
 <style>
   body {
-    font-family: Inter, system-ui;
+    font-family: 'Inter', sans-serif;
     background: #0f1724;
     color: #e6eef6;
     display: flex;
@@ -14,87 +14,140 @@
     align-items: flex-start;
     min-height: 100vh;
     margin: 0;
-    padding-top: 20px;
+    padding-top: 40px;
   }
   .container {
-    max-width: 800px;
-    width: 95%;
+    width: 90%;
+    max-width: 700px;
     background: #111827;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.7);
   }
-  h1 {text-align: center; font-size: 22px; margin-bottom: 20px;}
-  .grid {display: grid; grid-template-columns: 1fr 1fr; gap: 16px;}
+  h1 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #a78bfa;
+  }
+  .mode-select {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  select {
+    background: #1f2937;
+    color: #fff;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+  }
   .card {
     background: #1f2937;
-    padding: 12px;
-    border-radius: 10px;
+    border-radius: 12px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
+    margin-bottom: 16px;
   }
-  label {font-weight: 600; margin-bottom: 8px;}
+  label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
   textarea {
     flex: 1;
     background: #0f1724;
     border: 1px solid #374151;
     color: #fff;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 15px;
     resize: vertical;
-    min-height: 200px;
+    min-height: 150px;
+  }
+  .controls {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
   }
   button {
-    background: #4c1d95;
+    background: #8b5cf6;
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 8px 10px;
-    margin-right: 8px;
+    padding: 8px 14px;
+    margin-right: 10px;
+    margin-top: 8px;
     cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
   }
-  .secondary {background: #374151;}
-  .controls {margin-top: 10px;}
-  .note {background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; margin-top: 12px; font-size: 13px; color: #9ca3af;}
-  @media(max-width: 700px){.grid{grid-template-columns:1fr}}
+  button:hover {
+    background: #7c3aed;
+  }
+  .secondary {
+    background: #374151;
+  }
+  .secondary:hover {
+    background: #4b5563;
+  }
+  .note {
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #9ca3af;
+  }
+  footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+    margin-top: 22px;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Text ⇄ Binary Converter</h1>
-  <div class="grid">
-    <div class="card">
-      <label for="textInput">Text</label>
-      <textarea id="textInput" placeholder="Enter text here..."></textarea>
-      <div class="controls">
-        <button id="toBinary">Text → Binary</button>
-        <button id="clearText" class="secondary">Clear</button>
-        <button id="copyText" class="secondary">Copy</button>
-      </div>
-    </div>
-    <div class="card">
-      <label for="binaryInput">Binary</label>
-      <textarea id="binaryInput" placeholder="01001000 01100101 ..."></textarea>
-      <div class="controls">
-        <button id="toText">Binary → Text</button>
-        <button id="clearBinary" class="secondary">Clear</button>
-        <button id="copyBinary" class="secondary">Copy</button>
-      </div>
+  
+  <div class="mode-select">
+    <select id="modeSelect">
+      <option value="textToBinary">Text → Binary</option>
+      <option value="binaryToText">Binary → Text</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <label id="inputLabel" for="inputArea">Text</label>
+    <textarea id="inputArea" placeholder="Enter your text here..."></textarea>
+    <div class="controls">
+      <button id="convertBtn">Convert</button>
+      <button id="clearBtn" class="secondary">Clear</button>
+      <button id="copyBtn" class="secondary">Copy</button>
     </div>
   </div>
-  <div class="note">Note: Input binary should be space-separated 8-bit bytes. Invalid bits will be ignored.</div>
+
+  <div class="card">
+    <label for="outputArea">Output</label>
+    <textarea id="outputArea" placeholder="Result will appear here..." readonly></textarea>
+  </div>
+
+  <div class="note">Note: Binary should be space-separated 8-bit bytes (e.g., 01000001 01000010).</div>
+  <footer>Created by YLDL4u</footer>
 </div>
 
 <script>
-const textInput = document.getElementById('textInput');
-const binaryInput = document.getElementById('binaryInput');
-const toBinary = document.getElementById('toBinary');
-const toText = document.getElementById('toText');
-const clearText = document.getElementById('clearText');
-const clearBinary = document.getElementById('clearBinary');
-const copyText = document.getElementById('copyText');
-const copyBinary = document.getElementById('copyBinary');
+const modeSelect = document.getElementById('modeSelect');
+const inputLabel = document.getElementById('inputLabel');
+const inputArea = document.getElementById('inputArea');
+const outputArea = document.getElementById('outputArea');
+const convertBtn = document.getElementById('convertBtn');
+const clearBtn = document.getElementById('clearBtn');
+const copyBtn = document.getElementById('copyBtn');
 
 // Convert Text → Binary
 function textToBinary(text){
@@ -109,21 +162,48 @@ function binaryToText(binary){
   return new TextDecoder().decode(new Uint8Array(bytes));
 }
 
-toBinary.addEventListener('click', ()=>{ binaryInput.value = textToBinary(textInput.value); });
-toText.addEventListener('click', ()=>{ textInput.value = binaryToText(binaryInput.value); });
+// Update input label on mode change
+modeSelect.addEventListener('change', ()=>{
+  if(modeSelect.value === 'textToBinary'){
+    inputLabel.textContent = 'Text';
+    inputArea.placeholder = 'Enter your text here...';
+    outputArea.placeholder = 'Result will appear here...';
+    inputArea.value = '';
+    outputArea.value = '';
+  } else {
+    inputLabel.textContent = 'Binary';
+    inputArea.placeholder = 'Enter binary here...';
+    outputArea.placeholder = 'Result will appear here...';
+    inputArea.value = '';
+    outputArea.value = '';
+  }
+});
 
-clearText.addEventListener('click', ()=>{ textInput.value = ''; });
-clearBinary.addEventListener('click', ()=>{ binaryInput.value = ''; });
+// Convert button
+convertBtn.addEventListener('click', ()=>{
+  if(modeSelect.value === 'textToBinary'){
+    outputArea.value = textToBinary(inputArea.value);
+  } else {
+    outputArea.value = binaryToText(inputArea.value);
+  }
+});
 
-copyText.addEventListener('click', ()=>{ navigator.clipboard.writeText(textInput.value); alert('Text copied!'); });
-copyBinary.addEventListener('click', ()=>{ navigator.clipboard.writeText(binaryInput.value); alert('Binary copied!'); });
+// Clear button
+clearBtn.addEventListener('click', ()=>{
+  inputArea.value = '';
+  outputArea.value = '';
+});
 
-// Shortcut Ctrl+Enter
+// Copy button
+copyBtn.addEventListener('click', ()=>{
+  navigator.clipboard.writeText(outputArea.value);
+  alert('Output copied!');
+});
+
+// Ctrl+Enter shortcut
 document.addEventListener('keydown', e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
-    const active=document.activeElement;
-    if(active===textInput) toBinary.click();
-    else if(active===binaryInput) toText.click();
+  if((e.ctrlKey || e.metaKey) && e.key==='Enter'){
+    convertBtn.click();
   }
 });
 </script>
