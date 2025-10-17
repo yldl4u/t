@@ -1,0 +1,224 @@
+<!--
+  text-binary-converter.html
+  Single-file Text <-> Binary converter (HTML/CSS/JS)
+  Drop this file into a GitHub repo (or open locally) to use.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Text ⇄ Binary Converter</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#7c3aed;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg,#071122 0%, #071226 60%); color:#e6eef6}
+    .wrap{width:min(1100px,96%); padding:28px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6);min-height:320px}
+    label{display:block;font-weight:600;margin-bottom:8px}
+    textarea{width:100%;min-height:200px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:inherit;resize:vertical;font-size:14px}
+    .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:inherit;cursor:pointer}
+    .primary{background:linear-gradient(90deg,var(--accent),#4c1d95);border:none}
+    .muted{color:var(--muted);font-size:13px}
+    .toolbar{display:flex;gap:12px;align-items:center;margin-left:auto}
+    .actions{display:flex;gap:8px}
+    footer{margin-top:14px;color:var(--muted);font-size:13px}
+    @media (max-width:820px){.grid{grid-template-columns:1fr;}.toolbar{margin-top:8px;}}
+    .note{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;margin-top:12px;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Text ⇄ Binary Converter</h1>
+        <p class="lead">Convert text to binary (8-bit bytes) and binary to text (supports space- or newline-separated bytes or raw bitstreams).</p>
+      </div>
+      <div class="toolbar">
+        <div class="muted">Encoding: <strong id="encodingLabel">UTF-8</strong></div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <label for="textInput">Text</label>
+        <textarea id="textInput" placeholder="Type or paste text here...">Hello, GitHub!</textarea>
+        <div class="controls">
+          <div class="actions">
+            <button id="toBinaryBtn" class="primary">Text → Binary</button>
+            <button id="clearText">Clear</button>
+            <button id="copyText">Copy</button>
+          </div>
+          <div class="muted" style="margin-left:auto">Bytes: <span id="textBytes">0</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <label for="binaryInput">Binary</label>
+        <textarea id="binaryInput" placeholder="01001000 01100101 01101100 01101100 01101111"></textarea>
+        <div class="controls">
+          <div class="actions">
+            <button id="toTextBtn" class="primary">Binary → Text</button>
+            <button id="clearBinary">Clear</button>
+            <button id="copyBinary">Copy</button>
+          </div>
+          <div class="muted" style="margin-left:auto">Bytes: <span id="binaryBytes">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">Quick tips: For Binary → Text, you can input <strong>space-separated bytes</strong> (eg. <code>01000001 01000010</code>), <strong>newline-separated</strong> bytes, or a <strong>continuous bitstream</strong> (eg. <code>0100000101000010</code>) — the converter will try to chunk into 8-bit bytes. Invalid bytes will be highlighted in the result area as <em>[invalid]</em>.</div>
+
+    <footer>
+      <div class="muted">Open-source: copy this file into a GitHub repository (e.g. <code>index.html</code>). Want a README or a Node build? Ask me — I'll add it.</div>
+    </footer>
+  </div>
+
+  <script>
+    // Helpers
+    const $ = id => document.getElementById(id);
+    const textInput = $('textInput');
+    const binaryInput = $('binaryInput');
+    const toBinaryBtn = $('toBinaryBtn');
+    const toTextBtn = $('toTextBtn');
+    const copyText = $('copyText');
+    const copyBinary = $('copyBinary');
+    const clearText = $('clearText');
+    const clearBinary = $('clearBinary');
+    const textBytes = $('textBytes');
+    const binaryBytes = $('binaryBytes');
+
+    function updateCounts(){
+      const encoder = new TextEncoder();
+      try{ textBytes.textContent = encoder.encode(textInput.value).length }catch(e){ textBytes.textContent = textInput.value.length }
+      // count bytes in binary by splitting into valid 8-bit groups
+      const cleaned = binaryInput.value.replace(/[^01\s]/g,'').trim();
+      if(!cleaned) { binaryBytes.textContent = 0; return }
+      const bitsOnly = cleaned.replace(/\s+/g,'');
+      binaryBytes.textContent = Math.floor(bitsOnly.length/8);
+    }
+
+    textInput.addEventListener('input', updateCounts);
+    binaryInput.addEventListener('input', updateCounts);
+    updateCounts();
+
+    // Convert text to binary (UTF-8 bytes)
+    function textToBinary(text){
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(text);
+      // join as space-separated 8-bit bytes
+      return Array.from(bytes).map(b => b.toString(2).padStart(8,'0')).join(' ');
+    }
+
+    // Convert binary (various formats) to text
+    function binaryToText(bin){
+      // Remove any characters other than 0/1 and whitespace
+      const cleaned = bin.replace(/[^01\s]/g,'').trim();
+      if(!cleaned) return '';
+      // If user provided spaces/newlines, split on whitespace
+      const tokens = cleaned.split(/\s+/);
+      const bytes = [];
+      if(tokens.length > 1){
+        // interpret each token as a byte (or multiple of bytes concatenated)
+        for(const t of tokens){
+          if(t.length % 8 === 0){
+            for(let i=0;i<t.length;i+=8) bytes.push(t.slice(i,i+8));
+          } else {
+            // invalid length token -> try to pad left with zeros? We'll mark invalid
+            bytes.push(t); // keep as-is for error handling
+          }
+        }
+      } else {
+        // continuous stream — chunk into 8-bit groups
+        const s = tokens[0];
+        for(let i=0;i<s.length;i+=8){
+          const chunk = s.slice(i,i+8);
+          if(chunk.length===8) bytes.push(chunk);
+        }
+      }
+
+      // Convert byte strings to numbers and then decode as UTF-8
+      const byteValues = [];
+      const invalidIndices = [];
+      bytes.forEach((b, idx)=>{
+        if(!/^01{0,7}$/.test(b) && !/^[01]{8}$/.test(b)){
+          // allow bytes like '110' etc to be flagged invalid
+          if(!/^[01]+$/.test(b) || b.length !== 8){ invalidIndices.push(idx); return }
+        }
+        if(b.length===8 && /^[01]{8}$/.test(b)){
+          byteValues.push(parseInt(b,2));
+        } else {
+          invalidIndices.push(idx);
+        }
+      });
+
+      // Try decode bytes as UTF-8 using TextDecoder
+      let decoded = '';
+      try{
+        const dec = new TextDecoder();
+        decoded = dec.decode(new Uint8Array(byteValues));
+      }catch(e){
+        // fallback: fromCharCode for ASCII
+        decoded = String.fromCharCode.apply(null, byteValues);
+      }
+
+      // If there are invalid bytes, append notes
+      if(invalidIndices.length){
+        decoded += '\n\n[Warning] The input contained invalid byte groups at positions: ' + invalidIndices.join(', ') + '\n(Only full 8-bit groups of 0/1 are converted).';
+      }
+      return decoded;
+    }
+
+    // Button actions
+    toBinaryBtn.addEventListener('click', ()=>{
+      binaryInput.value = textToBinary(textInput.value);
+      updateCounts();
+    });
+
+    toTextBtn.addEventListener('click', ()=>{
+      const out = binaryToText(binaryInput.value);
+      textInput.value = out;
+      updateCounts();
+    });
+
+    clearText.addEventListener('click', ()=>{ textInput.value=''; updateCounts(); });
+    clearBinary.addEventListener('click', ()=>{ binaryInput.value=''; updateCounts(); });
+
+    copyText.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(textInput.value); alert('Text copied to clipboard') }catch(e){ alert('Copy failed — select and Ctrl+C') }
+    });
+    copyBinary.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(binaryInput.value); alert('Binary copied to clipboard') }catch(e){ alert('Copy failed — select and Ctrl+C') }
+    });
+
+    // Keyboard shortcuts: Ctrl+Enter to convert text->binary or binary->text depending on focus
+    document.addEventListener('keydown', e=>{
+      if((e.ctrlKey||e.metaKey) && e.key === 'Enter'){
+        const active = document.activeElement;
+        if(active === textInput) toBinaryBtn.click();
+        else if(active === binaryInput) toTextBtn.click();
+      }
+    });
+
+    // Small helper: validate binary input visually (not required but useful)
+    let validationTimer;
+    binaryInput.addEventListener('input', ()=>{
+      clearTimeout(validationTimer);
+      validationTimer = setTimeout(()=>{
+        const raw = binaryInput.value;
+        if(/[^01\s]/.test(raw)){
+          binaryInput.style.borderColor = '#b45309';
+        } else {
+          binaryInput.style.borderColor = 'rgba(255,255,255,0.04)';
+        }
+      },350);
+    });
+
+  </script>
+</body>
+</html>
