@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indian Money Calculator</title>
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f1724;
+    color: #e6eef6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding-top: 40px;
+  }
+  .container {
+    width: 90%;
+    max-width: 600px;
+    background: #111827;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+  }
+  h1 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #a78bfa;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+  }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #374151;
+    background: #0f1724;
+    color: #fff;
+    font-size: 15px;
+  }
+  button {
+    background: #8b5cf6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+  button:hover { background: #7c3aed; }
+  .secondary {
+    background: #374151;
+  }
+  .secondary:hover { background: #4b5563; }
+  .result {
+    background: #1f2937;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 20px;
+    font-size: 16px;
+  }
+  footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+    margin-top: 22px;
+  }
+  @media(max-width: 500px) { .grid {grid-template-columns: 1fr;} }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Indian Money Calculator</h1>
+  
+  <div class="grid">
+    <div>
+      <label for="note10">₹10 Notes</label>
+      <input type="number" id="note10" value="0" min="0">
+    </div>
+    <div>
+      <label for="note20">₹20 Notes</label>
+      <input type="number" id="note20" value="0" min="0">
+    </div>
+    <div>
+      <label for="note50">₹50 Notes</label>
+      <input type="number" id="note50" value="0" min="0">
+    </div>
+    <div>
+      <label for="note100">₹100 Notes</label>
+      <input type="number" id="note100" value="0" min="0">
+    </div>
+    <div>
+      <label for="note500">₹500 Notes</label>
+      <input type="number" id="note500" value="0" min="0">
+    </div>
+    <div>
+      <label for="note2000">₹2000 Notes</label>
+      <input type="number" id="note2000" value="0" min="0">
+    </div>
+    <div>
+      <label for="multiply">Multiply by</label>
+      <input type="number" id="multiply" value="1" min="1">
+    </div>
+  </div>
+  
+  <button id="calculateBtn">Calculate Total</button>
+  <button id="clearBtn" class="secondary">Clear All</button>
+  
+  <div class="result" id="result">Total Amount: ₹0</div>
+  
+  <footer>Created by YLDL4u</footer>
+</div>
+
+<script>
+const noteIds = ['note10','note20','note50','note100','note500','note2000'];
+const noteValues = [10,20,50,100,500,2000];
+
+const calculateBtn = document.getElementById('calculateBtn');
+const clearBtn = document.getElementById('clearBtn');
+const resultDiv = document.getElementById('result');
+const multiplyInput = document.getElementById('multiply');
+
+calculateBtn.addEventListener('click', ()=>{
+  let total = 0;
+  let breakdown = '';
+  const multiplyFactor = Number(multiplyInput.value) || 1;
+
+  noteIds.forEach((id,index)=>{
+    const count = Number(document.getElementById(id).value) || 0;
+    const amount = count * noteValues[index] * multiplyFactor;
+    total += amount;
+    breakdown += `₹${noteValues[index]} x ${count} x ${multiplyFactor} = ₹${amount}\n`;
+  });
+
+  resultDiv.textContent = `Total Amount: ₹${total}\n\nBreakdown:\n${breakdown}`;
+});
+
+clearBtn.addEventListener('click', ()=>{
+  noteIds.forEach(id=> document.getElementById(id).value=0);
+  multiplyInput.value = 1;
+  resultDiv.textContent = 'Total Amount: ₹0';
+});
+</script>
+</body>
+</html>
