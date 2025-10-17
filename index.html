@@ -1,186 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Text Converter (Binary, Hex, Base64 + Dedicated Binary ⇄ Text)</title>
-  <style>
-    body{font-family:Inter,system-ui;background:#0f1724;color:#e6eef6;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}
-    .container{max-width:1000px;width:95%;background:#111827;border-radius:12px;padding:24px;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
-    h1{text-align:center;font-size:22px;margin:0 0 12px}
-    h2{text-align:left;font-size:18px;margin-top:32px;color:#a78bfa}
-    .mode-select{display:flex;justify-content:center;margin-bottom:16px}
-    select{background:#1f2937;color:#fff;border:1px solid #374151;border-radius:8px;padding:8px 12px;font-size:14px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .card{background:#1f2937;padding:12px;border-radius:10px;display:flex;flex-direction:column}
-    label{font-weight:600;margin-bottom:8px}
-    textarea{flex:1;background:#0f1724;border:1px solid #374151;color:#fff;padding:10px;border-radius:8px;font-size:14px;resize:vertical;min-height:200px}
-    button{background:#4c1d95;color:white;border:none;border-radius:8px;padding:8px 10px;margin-right:8px;cursor:pointer}
-    .secondary{background:#374151}
-    .controls{margin-top:10px}
-    footer{text-align:center;color:#9ca3af;font-size:13px;margin-top:18px}
-    @media(max-width:800px){.grid{grid-template-columns:1fr}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text ⇄ Binary Converter</title>
+<style>
+  body {
+    font-family: Inter, system-ui;
+    background: #0f1724;
+    color: #e6eef6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding-top: 20px;
+  }
+  .container {
+    max-width: 800px;
+    width: 95%;
+    background: #111827;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  }
+  h1 {text-align: center; font-size: 22px; margin-bottom: 20px;}
+  .grid {display: grid; grid-template-columns: 1fr 1fr; gap: 16px;}
+  .card {
+    background: #1f2937;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  label {font-weight: 600; margin-bottom: 8px;}
+  textarea {
+    flex: 1;
+    background: #0f1724;
+    border: 1px solid #374151;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 200px;
+  }
+  button {
+    background: #4c1d95;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-right: 8px;
+    cursor: pointer;
+  }
+  .secondary {background: #374151;}
+  .controls {margin-top: 10px;}
+  .note {background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; margin-top: 12px; font-size: 13px; color: #9ca3af;}
+  @media(max-width: 700px){.grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Text ⇄ Binary / Hex / Base64 Converter</h1>
-    <div class="mode-select">
-      <label for="mode" style="margin-right:8px">Mode:</label>
-      <select id="mode">
-        <option value="binary">Binary (8-bit)</option>
-        <option value="hex">Hexadecimal</option>
-        <option value="base64">Base64</option>
-      </select>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <label for="textInput">Text</label>
-        <textarea id="textInput" placeholder="Enter text here...">Hello, GitHub!</textarea>
-        <div class="controls">
-          <button id="toEncoded">Text → Encode</button>
-          <button id="clearText" class="secondary">Clear</button>
-          <button id="copyText" class="secondary">Copy</button>
-        </div>
-      </div>
-      <div class="card">
-        <label for="encodedInput">Encoded Output</label>
-        <textarea id="encodedInput" placeholder="01001000 01100101 or 48 65 or SGVsbG8=..."></textarea>
-        <div class="controls">
-          <button id="toText">Decode → Text</button>
-          <button id="clearEncoded" class="secondary">Clear</button>
-          <button id="copyEncoded" class="secondary">Copy</button>
-        </div>
+<div class="container">
+  <h1>Text ⇄ Binary Converter</h1>
+  <div class="grid">
+    <div class="card">
+      <label for="textInput">Text</label>
+      <textarea id="textInput" placeholder="Enter text here..."></textarea>
+      <div class="controls">
+        <button id="toBinary">Text → Binary</button>
+        <button id="clearText" class="secondary">Clear</button>
+        <button id="copyText" class="secondary">Copy</button>
       </div>
     </div>
-
-    <h2>🔹 Quick Binary ⇄ Text Converter (Dedicated)</h2>
-    <div class="grid">
-      <div class="card">
-        <label for="textInput2">Text</label>
-        <textarea id="textInput2" placeholder="Enter text here...">Binary to Text Example</textarea>
-        <div class="controls">
-          <button id="toBinary2">Text → Binary</button>
-          <button id="clearText2" class="secondary">Clear</button>
-          <button id="copyText2" class="secondary">Copy</button>
-        </div>
-      </div>
-      <div class="card">
-        <label for="binaryInput2">Binary</label>
-        <textarea id="binaryInput2" placeholder="01000010 01101001 01101110 01100001 01110010 01111001"></textarea>
-        <div class="controls">
-          <button id="toText2">Binary → Text</button>
-          <button id="clearBinary2" class="secondary">Clear</button>
-          <button id="copyBinary2" class="secondary">Copy</button>
-        </div>
+    <div class="card">
+      <label for="binaryInput">Binary</label>
+      <textarea id="binaryInput" placeholder="01001000 01100101 ..."></textarea>
+      <div class="controls">
+        <button id="toText">Binary → Text</button>
+        <button id="clearBinary" class="secondary">Clear</button>
+        <button id="copyBinary" class="secondary">Copy</button>
       </div>
     </div>
-
-    <footer>Open-source Converter — Text ⇄ Binary / Hex / Base64 + Dedicated Binary ⇄ Text | Ctrl+Enter for quick convert</footer>
   </div>
+  <div class="note">Note: Input binary should be space-separated 8-bit bytes. Invalid bits will be ignored.</div>
+</div>
 
-  <script>
-    const $ = id => document.getElementById(id);
+<script>
+const textInput = document.getElementById('textInput');
+const binaryInput = document.getElementById('binaryInput');
+const toBinary = document.getElementById('toBinary');
+const toText = document.getElementById('toText');
+const clearText = document.getElementById('clearText');
+const clearBinary = document.getElementById('clearBinary');
+const copyText = document.getElementById('copyText');
+const copyBinary = document.getElementById('copyBinary');
 
-    // --- Multi-mode converter ---
-    const mode = $('mode');
-    const textInput = $('textInput');
-    const encodedInput = $('encodedInput');
-    const toEncoded = $('toEncoded');
-    const toText = $('toText');
-    const clearText = $('clearText');
-    const clearEncoded = $('clearEncoded');
-    const copyText = $('copyText');
-    const copyEncoded = $('copyEncoded');
+// Convert Text → Binary
+function textToBinary(text){
+  const bytes = new TextEncoder().encode(text);
+  return Array.from(bytes).map(b=>b.toString(2).padStart(8,'0')).join(' ');
+}
 
-    function encodeText(text, type){
-      if(type === 'binary'){
-        const bytes = new TextEncoder().encode(text);
-        return Array.from(bytes).map(b=>b.toString(2).padStart(8,'0')).join(' ');
-      }
-      if(type === 'hex'){
-        const bytes = new TextEncoder().encode(text);
-        return Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join(' ');
-      }
-      if(type === 'base64'){
-        return btoa(unescape(encodeURIComponent(text)));
-      }
-      return text;
-    }
+// Convert Binary → Text
+function binaryToText(binary){
+  const clean = binary.replace(/[^01\s]/g,'').trim().split(/\s+/).filter(Boolean);
+  const bytes = clean.map(b=>parseInt(b,2));
+  return new TextDecoder().decode(new Uint8Array(bytes));
+}
 
-    function decodeText(encoded, type){
-      if(type === 'binary'){
-        const clean = encoded.replace(/[^01\s]/g,'').trim().split(/\s+/).filter(Boolean);
-        const bytes = clean.map(b=>parseInt(b,2));
-        return new TextDecoder().decode(new Uint8Array(bytes));
-      }
-      if(type === 'hex'){
-        const clean = encoded.replace(/[^0-9a-fA-F\s]/g,'').trim().split(/\s+/).filter(Boolean);
-        const bytes = clean.map(h=>parseInt(h,16));
-        return new TextDecoder().decode(new Uint8Array(bytes));
-      }
-      if(type === 'base64'){
-        try { return decodeURIComponent(escape(atob(encoded))); }
-        catch { return '[Invalid Base64 Input]'; }
-      }
-      return encoded;
-    }
+toBinary.addEventListener('click', ()=>{ binaryInput.value = textToBinary(textInput.value); });
+toText.addEventListener('click', ()=>{ textInput.value = binaryToText(binaryInput.value); });
 
-    toEncoded.addEventListener('click',()=>{
-      encodedInput.value = encodeText(textInput.value, mode.value);
-    });
-    toText.addEventListener('click',()=>{
-      textInput.value = decodeText(encodedInput.value, mode.value);
-    });
-    clearText.addEventListener('click',()=>{ textInput.value=''; });
-    clearEncoded.addEventListener('click',()=>{ encodedInput.value=''; });
-    copyText.addEventListener('click',()=>{ navigator.clipboard.writeText(textInput.value); alert('Text copied!'); });
-    copyEncoded.addEventListener('click',()=>{ navigator.clipboard.writeText(encodedInput.value); alert('Encoded text copied!'); });
+clearText.addEventListener('click', ()=>{ textInput.value = ''; });
+clearBinary.addEventListener('click', ()=>{ binaryInput.value = ''; });
 
-    // --- Dedicated Binary ⇄ Text ---
-    const textInput2 = $('textInput2');
-    const binaryInput2 = $('binaryInput2');
-    const toBinary2 = $('toBinary2');
-    const toText2 = $('toText2');
-    const clearText2 = $('clearText2');
-    const clearBinary2 = $('clearBinary2');
-    const copyText2 = $('copyText2');
-    const copyBinary2 = $('copyBinary2');
+copyText.addEventListener('click', ()=>{ navigator.clipboard.writeText(textInput.value); alert('Text copied!'); });
+copyBinary.addEventListener('click', ()=>{ navigator.clipboard.writeText(binaryInput.value); alert('Binary copied!'); });
 
-    function textToBinarySimple(text){
-      const bytes = new TextEncoder().encode(text);
-      return Array.from(bytes).map(b=>b.toString(2).padStart(8,'0')).join(' ');
-    }
-
-    function binaryToTextSimple(binary){
-      const clean = binary.replace(/[^01\s]/g,'').trim().split(/\s+/).filter(Boolean);
-      const bytes = clean.map(b=>parseInt(b,2));
-      return new TextDecoder().decode(new Uint8Array(bytes));
-    }
-
-    toBinary2.addEventListener('click',()=>{
-      binaryInput2.value = textToBinarySimple(textInput2.value);
-    });
-    toText2.addEventListener('click',()=>{
-      textInput2.value = binaryToTextSimple(binaryInput2.value);
-    });
-
-    clearText2.addEventListener('click',()=>{ textInput2.value=''; });
-    clearBinary2.addEventListener('click',()=>{ binaryInput2.value=''; });
-    copyText2.addEventListener('click',()=>{ navigator.clipboard.writeText(textInput2.value); alert('Text copied!'); });
-    copyBinary2.addEventListener('click',()=>{ navigator.clipboard.writeText(binaryInput2.value); alert('Binary copied!'); });
-
-    // Shortcut Ctrl+Enter
-    document.addEventListener('keydown',e=>{
-      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
-        const active=document.activeElement;
-        if(active===textInput) toEncoded.click();
-        else if(active===encodedInput) toText.click();
-        else if(active===textInput2) toBinary2.click();
-        else if(active===binaryInput2) toText2.click();
-      }
-    });
-  </script>
+// Shortcut Ctrl+Enter
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
+    const active=document.activeElement;
+    if(active===textInput) toBinary.click();
+    else if(active===binaryInput) toText.click();
+  }
+});
+</script>
 </body>
 </html>
